@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: xamL+syIzNU41jgdV9h/AKoWd0XDp3vNDDr2udXRUtKMyaVSQctVkjrdVjsWR8PCWmCikMaNK0MC0Q5ZBQbGwVOkrWqoWZ6Wh8PtBZJoYv8RZlbGsH3Sq4EySZHiMLo84lWwibrz7oxzDgbmjPP+pCnjJNMMJHTDyplx29zYoGWvbOkDKXgByRSxO5TpVq5mFwJzUcWT2bfwXy8JMXTefnMkg46sB83giHRY78eDDGR+Ey1b1mOdb6OsfDVrHPC4V+8lLPP0xI1Xsu48HHVBhsOMV03c2dLzNf4s0CJu8eB8HW37MM042f1vOOdf6LUcN5Y0/X/tSPipiG05KLVQ0RRh7Pe1g6NLaPLPbO3YTewTIzYjT6+39Bar7w1URgp9uyQ4+vtMX20bUfIBCId3M5jc6zyLnuE0uYc/LTeZrZ1MNY3nzvsoAIcxg6ZRmrCsHfOPVcWXgrPANtCu+91mbSwvymPyu7kbQgGnluta6yKDRlTrupnARxsZX0ygFXs/V1rzKygiZ0pWNlr+9dYhQnUSPerNSmcdFy9wwgHmbQKn6jb02enc8oLw9+ItKO+QgmENrLD/fW/rmpFlUXX3m9ziVpY7XIt12ZH/BfoL4HtQXvX5ey6ujCYgWDoMg6ROClfZgmaGF/vyDz2vse3gmq7DWqmpb3Ic2XLGs2HNzP8=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-O-Conors-of-Castle-Conor-County-Mayo-From-Tales-from-All-Countries_3616
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
